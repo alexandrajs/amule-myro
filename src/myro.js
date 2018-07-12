@@ -62,7 +62,11 @@ class Myro extends Layer {
 				if (fields.length) {
 					fields.forEach(field => { // TODO: OPT
 						if (row.hasOwnProperty(field) && typeof row[field] === "string") {
-							row[field] = JSON.parse(row[field]);
+							try {
+								row[field] = JSON.parse(row[field]);
+							} catch (e) {
+								// MARK IGNORE ERROR?
+							}
 						}
 					});
 				}
