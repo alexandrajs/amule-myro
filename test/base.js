@@ -75,6 +75,25 @@ describe("CRUD", () => {
 			});
 		});
 	});
+	it("get json type", (done) => {
+		let mule = new AMule();
+		const json = {a:1,b:true,c:null,d:[1,2.3,4,{}]};
+		mule.use(new Myro(connection));
+		mule.has("tbl_json", 42, function (err, has) {
+			assert.strictEqual(err, null);
+			assert.strictEqual(has, false);
+			connection.query("INSERT INTO `tbl_json` SET `id`=42, `value`='" + JSON.stringify(json) + "'", (err) => {
+				if (err) {
+					return done(err);
+				}
+				mule.get("tbl_json", 42, function (err, res) {
+					assert.strictEqual(err, null);
+					assert.deepStrictEqual(res.value, json);
+					done();
+				});
+			});
+		});
+	});
 	it("delete with readOnly:true", (done) => {
 		let mule = new AMule();
 		mule.use(new Myro(connection));
