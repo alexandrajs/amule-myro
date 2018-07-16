@@ -20,7 +20,8 @@
     "node": ">=8.0.0"
   },
   "peerDependencies": {
-    "amule": "^0.2.4"
+    "amule": "^0.2.4",
+    "mysql": "^2.15.0"
   },
   "devDependencies": {
     "amule": "^0.2.4",
@@ -30,7 +31,8 @@
     "istanbul": "^0.4.5",
     "jsdoc": "^3.5.5",
     "mocha": "^5.2.0",
-    "mocha-lcov-reporter": "^1.3.0"
+    "mocha-lcov-reporter": "^1.3.0",
+    "mysql": "^2.15.0"
   },
   "repository": {
     "type": "git",
@@ -39,8 +41,5 @@
   "bugs": {
     "url": "https://github.com/alexandrajs/amule-myro/issues"
   },
-  "homepage": "https://github.com/alexandrajs/amule-myro#readme",
-  "dependencies": {
-    "mysql": "github:mysqljs/mysql"
-  }
+  "homepage": "https://github.com/alexandrajs/amule-myro#readme"
 }

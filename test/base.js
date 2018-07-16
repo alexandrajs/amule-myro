@@ -7,15 +7,14 @@ const AMule = require("amule");
 const Myro = require("../");
 const assert = require("assert");
 const mysql = require("mysql");
-let client;
 describe("CRUD", () => {
 	let connection;
 	before((done) => {
 		connection = mysql.createConnection({
-			host: "192.168.0.200",
+			host: "localhost",
 			user: "root",
 			password: "root",
-			database: "ponury"
+			database: "test"
 		});
 		connection.connect(done);
 	});
@@ -24,7 +23,12 @@ describe("CRUD", () => {
 	});
 	beforeEach((done) => {
 		connection.query("TRUNCATE `tbl`", (err) => {
-			done(err);
+			if (err) {
+				return done(err);
+			}
+			connection.query("TRUNCATE `tbl_json`", (err) => {
+				done(err);
+			});
 		});
 	});
 	it("has", (done) => {
@@ -77,7 +81,17 @@ describe("CRUD", () => {
 	});
 	it("get json type", (done) => {
 		let mule = new AMule();
-		const json = {a:1,b:true,c:null,d:[1,2.3,4,{}]};
+		const json = {
+			a: 1,
+			b: true,
+			c: null,
+			d: [
+				1,
+				2.3,
+				4,
+				{}
+			]
+		};
 		mule.use(new Myro(connection));
 		mule.has("tbl_json", 42, function (err, has) {
 			assert.strictEqual(err, null);
