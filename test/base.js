@@ -7,6 +7,12 @@ const AMule = require("amule");
 const Myro = require("../");
 const assert = require("assert");
 const mysql = require("mysql");
+const myro_opts = {
+	schemas: {
+		tbl: {options: {primaryKey: "pk"}},
+		tbl_json: {options: {primaryKey: "pk"}}
+	}
+};
 describe("CRUD", () => {
 	let connection;
 	before((done) => {
@@ -33,11 +39,11 @@ describe("CRUD", () => {
 	});
 	it("has", (done) => {
 		let mule = new AMule();
-		mule.use(new Myro(connection));
+		mule.use(new Myro(connection, myro_opts));
 		mule.has("tbl", 42, function (err, has) {
 			assert.strictEqual(err, null);
 			assert.strictEqual(has, false);
-			connection.query("INSERT INTO `tbl` SET `id`=42, `value`='value'", (err) => {
+			connection.query("INSERT INTO `tbl` SET `pk`=42, `value`='value'", (err) => {
 				if (err) {
 					return done(err);
 				}
@@ -51,7 +57,7 @@ describe("CRUD", () => {
 	});
 	it("set", (done) => {
 		let mule = new AMule();
-		mule.use(new Myro(connection));
+		mule.use(new Myro(connection, myro_opts));
 		mule.set("tbl", 42, {value: "value"}, (err) => {
 			assert.strictEqual(err, null);
 			mule.has("tbl", 42, (err, has) => {
@@ -63,11 +69,11 @@ describe("CRUD", () => {
 	});
 	it("get", (done) => {
 		let mule = new AMule();
-		mule.use(new Myro(connection));
+		mule.use(new Myro(connection, myro_opts));
 		mule.has("tbl", 42, function (err, has) {
 			assert.strictEqual(err, null);
 			assert.strictEqual(has, false);
-			connection.query("INSERT INTO `tbl` SET `id`=42, `value`='value'", (err) => {
+			connection.query("INSERT INTO `tbl` SET `pk`=42, `value`='value'", (err) => {
 				if (err) {
 					return done(err);
 				}
@@ -92,11 +98,11 @@ describe("CRUD", () => {
 				{}
 			]
 		};
-		mule.use(new Myro(connection));
+		mule.use(new Myro(connection, myro_opts));
 		mule.has("tbl_json", 42, function (err, has) {
 			assert.strictEqual(err, null);
 			assert.strictEqual(has, false);
-			connection.query("INSERT INTO `tbl_json` SET `id`=42, `value`='" + JSON.stringify(json) + "'", (err) => {
+			connection.query("INSERT INTO `tbl_json` SET `pk`=42, `value`='" + JSON.stringify(json) + "'", (err) => {
 				if (err) {
 					return done(err);
 				}
@@ -110,8 +116,8 @@ describe("CRUD", () => {
 	});
 	it("delete with readOnly:true", (done) => {
 		let mule = new AMule();
-		mule.use(new Myro(connection));
-		connection.query("INSERT INTO `tbl` SET `id`=42, `value`='value'", (err) => {
+		mule.use(new Myro(connection, myro_opts));
+		connection.query("INSERT INTO `tbl` SET `pk`=42, `value`='value'", (err) => {
 			if (err) {
 				return done(err);
 			}
@@ -131,8 +137,8 @@ describe("CRUD", () => {
 	});
 	it("clear with readOnly:true", (done) => {
 		let mule = new AMule();
-		mule.use(new Myro(connection));
-		connection.query("INSERT INTO `tbl` SET `id`=42, `value`='value'", (err) => {
+		mule.use(new Myro(connection, myro_opts));
+		connection.query("INSERT INTO `tbl` SET `pk`=42, `value`='value'", (err) => {
 			if (err) {
 				return done(err);
 			}
@@ -152,7 +158,7 @@ describe("CRUD", () => {
 	});
 	it("stats", (done) => {
 		let mule = new AMule();
-		const more = new Myro(connection);
+		const more = new Myro(connection, myro_opts);
 		mule.use(more);
 		mule.get("tbl", 42, function (err, value) {
 			assert.strictEqual(err, null);
@@ -161,12 +167,15 @@ describe("CRUD", () => {
 			assert.strictEqual(stats.misses, 1);
 			assert.strictEqual(stats.ratio, 0);
 			assert.strictEqual(stats.hits, 0);
-			connection.query("INSERT INTO `tbl` SET `id`=42, `value`='value'", (err) => {
+			connection.query("INSERT INTO `tbl` SET `pk`=42, `value`='value'", (err) => {
 				if (err) {
 					return done(err);
 				}
 				assert.strictEqual(err, null);
 				mule.get("tbl", 42, function (err, val) {
+					if (err) {
+						return done(err);
+					}
 					assert.strictEqual(err, null);
 					assert.strictEqual(val.value, "value");
 					let stats = more.getStats(true);

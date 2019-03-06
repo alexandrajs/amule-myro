@@ -10,9 +10,11 @@ class Myro extends Layer {
 	/**
 	 *
 	 * @param {Connection} connection
+	 * @param options
 	 */
-	constructor(connection) {
+	constructor(connection, options) {
 		super();
+		this.options = Object.assign({schemas: {}}, options || {});
 		/**
 		 *
 		 */
@@ -30,8 +32,11 @@ class Myro extends Layer {
 	 * @param {function} callback
 	 */
 	_has(key, field, callback) {
-		const sql = mysql.format("SELECT `id` FROM ?? WHERE `id`= ?", [
+		const pk = this._pk(key);
+		const sql = mysql.format("SELECT ?? FROM ?? WHERE ??= ?", [
+			pk,
 			key,
+			pk,
 			field
 		]);
 		this.connection.query(sql, (err, results) => {
@@ -50,12 +55,14 @@ class Myro extends Layer {
 			if (err) {
 				fields = []; // MARK IGNORE ERROR ?
 			}
-			const sql = mysql.format("SELECT * FROM ?? WHERE `id`= ?", [
+			const pk = this._pk(key);
+			const sql = mysql.format("SELECT * FROM ?? WHERE ?? = ?", [
 				key,
+				pk,
 				field
 			]);
 			this.connection.query(sql, (err, results) => {
-				const row = results[0];
+				const row = results && results[0];
 				if (!row || err) {
 					return callback(err, null);
 				}
@@ -123,6 +130,17 @@ class Myro extends Layer {
 			callback(null, fields);
 		});
 	}
+
+	/**
+	 *
+	 * @param name
+	 * @returns {string}
+	 */
+	_pk(name) {
+		const schema = this.options.schemas[name];
+		return schema && schema.options && schema.options.primaryKey || "id";
+	}
 }
 
 module.exports = Myro;
+
